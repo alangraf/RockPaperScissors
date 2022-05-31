@@ -31,7 +31,7 @@ class GUI(QWidget):
         self.paper.setObjectName("Paper")
         self.scissors.setObjectName("Scissors")
 
-        self.computer.setFixedSize(490, 160)
+        self.computer.setFixedSize(590, 160)
         self.stone.setFixedSize(140, 100)
         self.paper.setFixedSize(140, 100)
         self.scissors.setFixedSize(140, 100)
