@@ -3,8 +3,8 @@ import sys
 import threading
 import time
 
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PyQt6.QtGui import QIcon
 
 
 class GUI(QWidget):
@@ -15,6 +15,7 @@ class GUI(QWidget):
         self.paper = QPushButton("", self)
         self.scissors = QPushButton("", self)
         self.computer = QPushButton("", self)
+        self.label = QLabel()
 
         self.initUI()
 
@@ -30,13 +31,24 @@ class GUI(QWidget):
         self.paper.setObjectName("Paper")
         self.scissors.setObjectName("Scissors")
 
-        self.computer.setFixedSize(190, 160)
-        self.stone.setFixedSize(130, 100)
-        self.paper.setFixedSize(130, 100)
-        self.scissors.setFixedSize(130, 100)
+        self.computer.setFixedSize(490, 160)
+        self.stone.setFixedSize(140, 100)
+        self.paper.setFixedSize(140, 100)
+        self.scissors.setFixedSize(140, 100)
 
         self.computer.setEnabled(False)
-        self.computer.setStyleSheet("border-radius:5px; border:1px solid gray;")
+
+        self.label.setText("Player: 0 | Computer: 0")
+
+        self.label.setStyleSheet("""color:black; font-size:25px""")
+
+        self.computer.setStyleSheet(
+            """
+            QPushButton{
+                border-image: url(icons/start_game.png); 
+            }
+            """
+        )
 
         self.stone.setStyleSheet(
             """
@@ -78,6 +90,9 @@ class GUI(QWidget):
         self.paper.clicked.connect(lambda: self.checkWhoWin(self, self.paper.objectName()))
         self.scissors.clicked.connect(lambda: self.checkWhoWin(self, self.scissors.objectName()))
 
+        h_lab_box = QHBoxLayout()
+        h_lab_box.addWidget(self.label)
+
         h_comp_box = QHBoxLayout()
         h_comp_box.addWidget(self.computer)
 
@@ -87,8 +102,13 @@ class GUI(QWidget):
         h_box.addWidget(self.scissors)
 
         v_box = QVBoxLayout()
+        v_box.addStretch(1)
+        v_box.addLayout(h_lab_box)
+        v_box.addStretch(2)
         v_box.addLayout(h_comp_box)
+        v_box.addStretch(3)
         v_box.addLayout(h_box)
+        v_box.addStretch(4)
 
         self.setLayout(v_box)
         self.show()
@@ -98,36 +118,56 @@ class GUI(QWidget):
     def checkWhoWin(self, object_name):
         n = random.randrange(0, 3)
         options = ["Stein", "Papier", "Schere"]
+        self.computer.setFixedSize(190, 160)
         self.computer.setStyleSheet(f"border-image: url(icons/{options[n]}.png);")
         state = 0
 
+        scores = self.label.text().split("|")
+        player_score = int((scores[0].strip().split(":")[1]).strip())
+        computer_score = int((scores[1].strip().split(":")[1]).strip())
+
         if object_name == "Stone" and options[n] == "Schere":
+            player_score += 1
             state = 1
         elif object_name == "Stone" and options[n] == "Papier":
+            computer_score += 1
             state = 0
         elif object_name == "Paper" and options[n] == "Stein":
+            player_score += 1
             state = 1
-        elif object_name == "Papier" and options[n] == "Schere":
+        elif object_name == "Paper" and options[n] == "Schere":
+            computer_score += 1
             state = 0
         elif object_name == "Scissors" and options[n] == "Papier":
+            player_score += 1
             state = 1
         elif object_name == "Scissors" and options[n] == "Stein":
+            computer_score += 1
             state = 0
         else:
             state = 2
 
-        x = threading.Thread(target=self.clear, args=(state,))
+        x = threading.Thread(target=self.setWinner, args=(state, player_score, computer_score, ))
         x.start()
 
-    def clear(self, state):
+    def setWinner(self, state, player_score, computer_score):
         time.sleep(1)
+        self.computer.setFixedSize(490, 160)
 
         if state == 1:
             self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/win.png);")
+            time.sleep(1)
+            self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/try_again.png);")
         elif state == 0:
             self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/lose.png);")
-        else:
+            time.sleep(1)
             self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/try_again.png);")
+        else:
+            self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/draw.png);")
+            time.sleep(1)
+            self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/try_again.png);")
+
+        self.label.setText(f"Player: {player_score} | Computer: {computer_score}")
 
 
 def main():
