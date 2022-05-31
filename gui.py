@@ -38,9 +38,9 @@ class GUI(QWidget):
 
         self.computer.setEnabled(False)
 
-        self.label.setText("Player: 0 | Computer: 0")
+        self.label.setText(f"PLAYER: 0 ║ COMPUTER: 0")
 
-        self.label.setStyleSheet("""color:black; font-size:25px""")
+        self.label.setStyleSheet("""color:white; font-size:20px; background:#5dba32; padding: 7px; border-radius:5px""")
 
         self.computer.setStyleSheet(
             """
@@ -116,13 +116,17 @@ class GUI(QWidget):
 
     @staticmethod
     def checkWhoWin(self, object_name):
+        self.stone.setEnabled(False)
+        self.paper.setEnabled(False)
+        self.scissors.setEnabled(False)
+
         n = random.randrange(0, 3)
         options = ["Stein", "Papier", "Schere"]
-        self.computer.setFixedSize(190, 160)
+        self.computer.setFixedSize(230, 160)
         self.computer.setStyleSheet(f"border-image: url(icons/{options[n]}.png);")
         state = 0
 
-        scores = self.label.text().split("|")
+        scores = self.label.text().split("║")
         player_score = int((scores[0].strip().split(":")[1]).strip())
         computer_score = int((scores[1].strip().split(":")[1]).strip())
 
@@ -167,7 +171,10 @@ class GUI(QWidget):
             time.sleep(1)
             self.computer.setStyleSheet(f"border:2px solid black; border-image: url(icons/try_again.png);")
 
-        self.label.setText(f"Player: {player_score} | Computer: {computer_score}")
+        self.stone.setEnabled(True)
+        self.paper.setEnabled(True)
+        self.scissors.setEnabled(True)
+        self.label.setText(f"PLAYER: {player_score} ║ COMPUTER: {computer_score}")
 
 
 def main():
